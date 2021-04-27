@@ -84,19 +84,19 @@ for o in orgs:
 sendMetric('echo ' + AppsTotalName + ' ' + str(AppsCounter) + ' source=CF')
 
 # List all service instances
-# res = cc.service_instances().get()
-# services = res.resources
-# ServicesCounter = 0
-# for r in services:
-#     si = r.service_bindings_url
-#     si = si.replace('/v2/apps/','')
-#     si = si.replace('/service_bindings','')
-#     ServiceState = r.state
-#     ServiceTags = ' ServiceName=' + r.name + ', ServicesGUID="' + si + '",state=' + ServiceState + ' '
-#     ServicesCounter +=1
-#     sendMetric('echo ' + ServicesName + ' ' + str(1) + ' source=' + r.name + ServiceTags)
+res = cc.service_instances().get()
+services = res.resources
+ServicesCounter = 0
+for r in services:
+    si = r.service_bindings_url
+    si = si.replace('/v2/apps/','')
+    si = si.replace('/service_bindings','')
+    ServiceState = r.state
+    ServiceTags = ' ServiceName=' + r.name + ', ServicesGUID="' + si + '",state=' + ServiceState + ' '
+    ServicesCounter +=1
+    sendMetric('echo ' + ServicesName + ' ' + str(1) + ' source=' + r.name + ServiceTags)
     
-# sendMetric('echo ' + ServicesTotalName + ' ' + str(ServicesCounter) + ' source=CF')
+sendMetric('echo ' + ServicesTotalName + ' ' + str(ServicesCounter) + ' source=CF')
 
 
 # Find a stack by name
