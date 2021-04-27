@@ -19,9 +19,11 @@ proxy_host = 'CHANGEME'
 proxy_port = '2878'
 
 AppsTotalName   = 'pcf.prime.TotalApps '
+ServicesTotalName = 'pcf.prime.TotalServices'
 SpacesName      = 'pcf.prime.Spaces'
 OrgName         = 'pcf.prime.Orgs'
 AppsName        = 'pcf.prime.Apps'
+ServicesName    = 'pcf.prime.Services'
 OrgTotalName    = 'pcf.prime.TotalOrgs '
 SpacesTotalName = 'pcf.prime.TotalSpaces '
 
@@ -63,19 +65,39 @@ for r in spaces:
     
 sendMetric('echo ' + SpacesTotalName + ' ' + str(SpacesCounter) + ' source=CF')
 
-# List all applications
-res = cc.apps().get()
-apps = res.resources
-AppsCounter = 0
-for r in apps:
-    si = r.service_bindings_url
-    si = si.replace('/v2/apps/','')
-    si = si.replace('/service_bindings','')
-    AppState = r.state
-    AppsTags = ' AppsName=' + r.name + ' AppsGUID="' + r.guid + '" siGUID="' + si + '" state=' + AppState + ' 'AppsCounter +=1
-    sendMetric('echo ' + AppsName + ' ' + str(1) + ' source=' + r.name + AppsTags)
+# List all applications per org
+res = cc.organizations().get()
+orgs = res.resources
+for o in orgs:
+    res = cc.apps().get()
+    apps = res.resources
+    AppsCounter = 0
+    for r in apps:
+        si = r.service_bindings_url
+        si = si.replace('/v2/apps/','')
+        si = si.replace('/service_bindings','')
+        AppState = r.state
+        AppsTags = ' AppsName=' + r.name + ',AppsGUID="' + r.guid + '",siGUID="' + si + '",state=' + AppState + ',org=' + o.name + ' '
+        AppsCounter +=1
+        sendMetric('echo ' + AppsName + ' ' + str(1) + ' source=' + r.name + AppsTags)
     
 sendMetric('echo ' + AppsTotalName + ' ' + str(AppsCounter) + ' source=CF')
+
+# List all service instances
+# res = cc.service_instances().get()
+# services = res.resources
+# ServicesCounter = 0
+# for r in services:
+#     si = r.service_bindings_url
+#     si = si.replace('/v2/apps/','')
+#     si = si.replace('/service_bindings','')
+#     ServiceState = r.state
+#     ServiceTags = ' ServiceName=' + r.name + ', ServicesGUID="' + si + '",state=' + ServiceState + ' '
+#     ServicesCounter +=1
+#     sendMetric('echo ' + ServicesName + ' ' + str(1) + ' source=' + r.name + ServiceTags)
+    
+# sendMetric('echo ' + ServicesTotalName + ' ' + str(ServicesCounter) + ' source=CF')
+
 
 # Find a stack by name
 res = cc.stacks().get()
