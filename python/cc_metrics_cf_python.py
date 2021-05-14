@@ -26,6 +26,7 @@ servicesTotalName = namespace_prefix + 'total-services'
 spacesName      = namespace_prefix + 'spaces'
 orgName         = namespace_prefix + 'orgs'
 appsName        = namespace_prefix + 'apps'
+appServicesName = namespace_prefix + 'appservices'
 servicesName    = namespace_prefix + 'services'
 orgTotalName    = namespace_prefix + 'total-orgs '
 spacesTotalName = namespace_prefix + 'total-spaces '
@@ -120,3 +121,23 @@ for si in serviceInstances:
     siTags = ' siGUID="' + siGUID + ' serviceGUID="' + serviceGUID + ' '
     serviceInstancesCounter +=1
     sendMetric('echo ' + servicesInstancesName + ' ' + str(1) + ' source=' + foundation + siTags)
+
+# Create metric to represent binding of apps to services
+for si in serviceInstances:
+    serviceGUID = si['entity']['service_guid']
+    for s in services:
+        serviceName = s['entity']['label']
+        serviceGUID2 = s['metadata']['guid']
+        if serviceGUID == serviceGUID2:
+            siGUID = si['metadata']['guid']
+            for sb in serviceBindings:
+                siGUID2 = sb['entity']['service_instance_guid']
+                if siGUID == siGUID2:
+                    appGUID = sb['entity']['app_guid']
+                    for a in apps:
+                        appGUID2 = a['metadata']['guid']
+                        if appGUID == appGUID2:
+                            appName = a['entity']['name']
+                            saTags = ' siGUID="' + siGUID + ' serviceGUID="' + serviceGUID + ' appName=' + appName + ' appGUID="' + appGUID + '" serviceName=' + serviceName + ' '
+                            sendMetric('echo ' + appServicesName + ' ' + str(1) + ' source=' + foundation + saTags)
+
